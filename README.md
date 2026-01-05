@@ -1,6 +1,18 @@
 # Green Resource Optimizer 🔋
 
-A Software Engineering project designed to monitor system resource usage and use Machine Learning to predict and optimize power consumption.
+- A Software Engineering project designed to monitor system resource usage and use Machine Learning to predict and optimize power consumption.
+
+## 📝 Project Summary
+
+- The Green Resource Optimizer is an end-to-end AI-driven system designed to automate energy efficiency on Windows workstations. By bridging the gap between raw hardware telemetry and machine learning, the system identifies periods of user inactivity and dynamically reconfigures the OS power environment.
+
+**Key Technical Achievements:**
+
+- Predictive Intelligence: Leveraged a Random Forest model to classify system states with higher accuracy than simple threshold-based scripts.
+
+- Low-Level OS Integration: Implemented direct communication with the Windows powercfg API to perform real-time hardware state transitions.
+
+- Performance Optimization: Designed a variable polling engine to minimize the script's own resource footprint, ensuring the optimizer itself is "green."
 
 ## 🚀 Project Goals
 
@@ -29,6 +41,10 @@ A Software Engineering project designed to monitor system resource usage and use
   - **Mechanism:** Live system polling with model inference every 15 seconds.
   - **Action:** Windows desktop notifications to prompt user for Power Saver mode.
 
+## 🚀 Features
+
+- [x] **Active Hardware Control:** Uses Windows `powercfg` API to dynamically swap power plans based on AI inference.
+
 ## 🏗️ System Architecture
 
 ```mermaid
@@ -39,12 +55,13 @@ graph LR
     D --> E[resource_model.pkl]
     E --> F(optimizer.py)
     F --> G[User Notifications]
+    F --> H{Windows Power Plan}
 ```
 
 ## 🛠️ Tech Stack
 
 - **Language:** Python
-- **Libraries:** `psutil`, `csv`, `time, pandas, joblib, win10toast`
+- **Libraries:** `psutil`, `pandas`, `scikit-learn', joblib, windows-toasts`
 - **Tools:** Git, VS Code
 
 ## 🚀 Installation & Usage
@@ -53,5 +70,9 @@ graph LR
    `git clone https://github.com/aabbiisshhaa/GreenResourceOptimizer.git`
 2. **Install dependencies:**
    `pip install -r requirements.txt`
-3. **Start monitoring:**
-   `python monitor.py`
+3. **Start monitoring (Run as admin for Power Plan switching):**
+   `python optimizer.py`
+
+## 🎓 Learning Outcomes
+
+- This project challenged me to move beyond static code and interact with live system hardware. I learned how to manage software dependencies (migrating to windows-toasts), handle OS-level GUIDs for power management, and transform a machine learning model into a functional background service.

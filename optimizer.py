@@ -1,14 +1,38 @@
+import os
 import psutil
 import joblib
 import pandas as pd
 import time
 import logging
-from win10toast import ToastNotifier
+from windows_toasts import WindowsToaster, Toast
+
+# GUIDs
+BALANCED_GUID = "381b4222-f694-41f0-9685-ff5bb260df2e"
+POWER_SAVER_GUID = "0f3869e4-2868-4a37-9ba0-21e3368c89d9"
+
+# To prevent redundant OS calls
+current_active_plan = None
+toaster = WindowsToaster('Green Optimizer')
+
+def set_power_plan(plan_grid, plan_name):
+    global current_active_plan
+    if current_active_plan != plan_grid:
+        try:
+            os.system(f'powercfg /setactive {plan_grid}')
+            logging.info(f"Switched to {plan_name} power plan.")
+            current_active_plan = plan_grid
+            
+            # Notify the user of the hardware changes
+            new_toast = Toast()
+            new_toast.text_fields = [f"Mode: {plan_name}", f"AI adjusted power settings for efficiency."]
+            toaster.show_toast(new_toast)
+        
+        except Exception as e:
+            logging.error(f"Failed to set power plan: {e}")
 
 # 1. Setup Logging and Notification
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
-toaster = ToastNotifier()
-
+toaster = WindowsToaster('Green Optimizer')
 # 2. Load the 'Brain'
 try:
     model = joblib.load('resource_model.pkl')
@@ -18,6 +42,8 @@ except:
     exit()
 
 def monitor_and_optimize():
+    sleep_time = 15     # Check every 15 seconds
+
     while True:
         
         # 3. Capture current system state
@@ -32,18 +58,25 @@ def monitor_and_optimize():
         
         # 5. Predict the state
         prediction = model.predict(input_df)[0]
-        logging.info(f"Predicted State: {prediction} | CPU: {current_metrics['cpu_usage']}%")
-
-        # 6. Logic: If Idle, suggest optimization
-        if prediction == "Idle":
-            toaster.show_toast(
-                "Green Optimizer",
-                "System is Idle. AI suggests switching to Power Saver mode.",
-                duration=5,
-                threaded=True
-            )
         
-        time.sleep(15) # Check every 15 seconds
+        # 6. Logic : Variable Polling & Notification
+        if prediction == "Idle" or current_metrics['cpu_usage'] < 10.0:
+            set_power_plan(POWER_SAVER_GUID, "Power Saver")
+            sleep_time = 60  # Slow down when idle
+            logging.info(f"State: IDLE. Sleeping for 60s to save energy.")
+            
+            # Notification logic
+            new_toast = Toast()
+            new_toast.body_text = "System is Idle. Optimizer entering low-power polling mode."
+            toaster.show_toast(new_toast)
+            
+            sleep_time = 60  # Slow down when idle
+        else:
+            set_power_plan(BALANCED_GUID, "Balanced")
+            logging.info(f"State: ACTIVE (CPU: {current_metrics['cpu_usage']}), Checking again in 15s.")
+            sleep_time = 15  # Normal polling interval
+        
+        time.sleep(sleep_time)
 
 if __name__ == "__main__":
     monitor_and_optimize()

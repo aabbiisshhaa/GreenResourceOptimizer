@@ -1,1 +1,9 @@
 *.csv 
+# Ignore raw data
+system_data.csv
+
+# Ignore trained model artifacts
+*.pkl
+
+# Ignore Python cache
+__pycache__/

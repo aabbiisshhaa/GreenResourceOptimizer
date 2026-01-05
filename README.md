@@ -4,7 +4,9 @@
 
 ## 📝 Project Summary
 
-- The Green Resource Optimizer is an end-to-end AI-driven system designed to automate energy efficiency on Windows workstations. By bridging the gap between raw hardware telemetry and machine learning, the system identifies periods of user inactivity and dynamically reconfigures the OS power environment.
+- The **Green Resource Optimizer** is an autonomous system designed to reduce PC energy consumption. By analyzing real-time hardware telemetry (CPU, RAM, and Process count), the system utilizes a trained **Random Forest Classifier** to predict user activity states.
+
+When an "Idle" state is detected, the optimizer automatically communicates with the Windows OS to switch the system into **Power Saver** mode, dynamically reverting to **Balanced** mode when activity resumes. This ensures peak performance when needed and maximum efficiency during downtime.
 
 **Key Technical Achievements:**
 
